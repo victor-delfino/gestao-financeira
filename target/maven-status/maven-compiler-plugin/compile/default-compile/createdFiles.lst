@@ -1,1 +1,9 @@
+com\gestao\financeira\domain\port\in\ListTransactionsUseCase.class
+com\gestao\financeira\domain\port\in\CalculateBalanceUseCase.class
+com\gestao\financeira\domain\exception\DomainException.class
+com\gestao\financeira\application\service\CreateTransactionCommand.class
+com\gestao\financeira\domain\model\TransactionType.class
+com\gestao\financeira\domain\port\out\TransactionRepositoryPort.class
 com\gestao\financeira\GestaoFinanceiraApplication.class
+com\gestao\financeira\domain\port\in\CreateTransactionUseCase.class
+com\gestao\financeira\domain\model\Transaction.class
