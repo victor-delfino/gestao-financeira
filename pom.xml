@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- ========================================================= -->
+    <!-- PARENT: Herda configurações padrão do Spring Boot          -->
+    <!-- Isso nos dá: versões gerenciadas, plugins configurados,    -->
+    <!-- e toda a mágica do auto-configuration do Spring Boot.      -->
+    <!-- ========================================================= -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.3</version>
+        <relativePath/> <!-- Busca o parent no repositório Maven -->
+    </parent>
+
+    <!-- ========================================================= -->
+    <!-- IDENTIDADE DO PROJETO                                      -->
+    <!-- groupId: identifica a organização (como um pacote Java)    -->
+    <!-- artifactId: nome do projeto                                -->
+    <!-- version: versão atual                                      -->
+    <!-- ========================================================= -->
+    <groupId>com.gestao</groupId>
+    <artifactId>gestao-financeira</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>gestao-financeira</name>
+    <description>Sistema de Gestão Financeira Pessoal - Arquitetura Hexagonal</description>
+
+    <!-- ========================================================= -->
+    <!-- PROPRIEDADES                                               -->
+    <!-- java.version: define a versão do Java para compilação      -->
+    <!-- ========================================================= -->
+    <properties>
+        <java.version>21</java.version>
+    </properties>
+
+    <!-- ========================================================= -->
+    <!-- DEPENDÊNCIAS                                               -->
+    <!-- Cada dependency é uma biblioteca que o projeto utiliza.     -->
+    <!-- O Spring Boot Parent gerencia as versões automaticamente.  -->
+    <!-- ========================================================= -->
+    <dependencies>
+
+        <!-- ===== WEB ===== -->
+        <!-- Traz: Spring MVC, Tomcat embutido, Jackson (JSON)     -->
+        <!-- Uso para: criar controllers REST (Adapter In)     -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- ===== JPA / HIBERNATE ===== -->
+        <!-- Traz: Spring Data JPA, Hibernate, javax.persistence   -->
+        <!-- Uso para: Adapter de saída (persistência)         -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- ===== VALIDAÇÃO ===== -->
+        <!-- Traz: Bean Validation (@NotNull, @NotBlank, @Min)     -->
+        <!-- Uso para: validar DTOs nos controllers            -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- ===== POSTGRESQL ===== -->
+        <!-- Driver JDBC para conectar ao PostgreSQL                -->
+        <!-- Usado em runtime (não em compilação)                   -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- ===== LOMBOK ===== -->
+        <!-- Gera getters, setters, construtores em tempo de        -->
+        <!-- compilação. Reduz código repetitivo.                   -->
+        <!-- ATENÇÃO: nunca usar Lombok no DOMAIN,              -->
+        <!-- apenas em DTOs e entidades JPA.                        -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- ===== TESTES ===== -->
+        <!-- Traz: JUnit 5, Mockito, Spring Test                   -->
+        <!-- Uso para: testar use cases e controllers          -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <!-- ========================================================= -->
+    <!-- BUILD                                                      -->
+    <!-- Configura o plugin do Spring Boot para criar o JAR          -->
+    <!-- executável e exclui o Lombok do JAR final.                 -->
+    <!-- ========================================================= -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
