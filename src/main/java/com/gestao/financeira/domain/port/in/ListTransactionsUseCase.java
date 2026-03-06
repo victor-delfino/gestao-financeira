@@ -19,5 +19,5 @@ public interface ListTransactionsUseCase {
      *
      * @return lista de transações (pode ser vazia, nunca null)
      */
-    List<Transaction> execute();
+    List<Transaction> listAll();
 }

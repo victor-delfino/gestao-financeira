@@ -21,5 +21,5 @@ public interface CalculateBalanceUseCase {
      *
      * @return saldo atual (pode ser negativo)
      */
-    BigDecimal execute();
+    BigDecimal calculate();
 }
