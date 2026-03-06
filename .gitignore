@@ -34,7 +34,7 @@ application-local.properties
 *.iml
 *.iws
 *.ipr
-out/
+/out/
 
 # Eclipse
 .classpath
