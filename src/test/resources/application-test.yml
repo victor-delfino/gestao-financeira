@@ -1,0 +1,36 @@
+# ═══════════════════════════════════════════════════════════════════
+#  application-test.yml — Profile de Testes de Integração
+# ═══════════════════════════════════════════════════════════════════
+#
+# Este arquivo é carregado SOMENTE quando o profile "test" está ativo.
+# O @SpringBootTest usa este profile quando anotamos o teste com:
+#   @ActiveProfiles("test")
+#
+# Por que H2?
+# PostgreSQL exige um servidor rodando. Em testes de CI (GitHub Actions,
+# Jenkins, etc.) não queremos depender de infra externa. O H2 é um banco
+# de dados embutido em Java que roda na memória — inicia em milissegundos,
+# sem configuração, sem estado residual entre testes.
+#
+# create-drop: o schema é CRIADO quando o contexto Spring sobe
+# e DESTRUÍDO quando ele termina. Cada teste começa com banco limpo.
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop    # Cria as tabelas ao subir, destrói ao finalizar
+    show-sql: false            # Desligamos o SQL nos testes para saída limpa
+    properties:
+      hibernate:
+        format_sql: false
+
+  h2:
+    console:
+      enabled: false           # Não precisamos do console web nos testes
