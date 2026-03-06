@@ -1,79 +1,28 @@
-# ============================================================
-# JAVA / MAVEN
-# ============================================================
+# ═══════════════════════════════════════════════════════════════════
+#  .gitignore — Raiz do Monorepo (backend + frontend)
+# ═══════════════════════════════════════════════════════════════════
+#  Este arquivo fica na RAIZ do repositório e cobre ambos os projetos.
+#  Cada subprojeto pode ter seu próprio .gitignore adicional para
+#  regras específicas.
 
-# Pasta de build — gerada pelo Maven, nunca versionar
-target/
+# ─── IDE ──────────────────────────────────────────────────────────
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
 
-# Arquivos de classe compilados
+# ─── OS ───────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── Java / Maven (backend) ──────────────────────────────────────
 *.class
-
-# Arquivos JAR/WAR/EAR gerados
 *.jar
 *.war
 *.ear
-*.nar
-
-# Arquivos de log
+/out/
 *.log
 
-# ============================================================
-# SPRING BOOT
-# ============================================================
-
-# Arquivo de propriedades local (pode conter senhas/tokens)
-application-local.yml
-application-local.properties
-
-# ============================================================
-# IDEs
-# ============================================================
-
-# IntelliJ IDEA
-.idea/
-*.iml
-*.iws
-*.ipr
-/out/
-
-# Eclipse
-.classpath
-.project
-.settings/
-bin/
-
-# VS Code
-.vscode/
-
-# NetBeans
-nbproject/
-nbbuild/
-dist/
-nbdist/
-
-# ============================================================
-# SISTEMA OPERACIONAL
-# ============================================================
-
-# Windows
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
-
-# ============================================================
-# OUTROS
-# ============================================================
-
-# Variáveis de ambiente locais
-.env
-.env.local
-
-# Arquivos temporários
-*.tmp
-*.temp
+# ─── Node.js / npm (frontend) ────────────────────────────────────
+node_modules/

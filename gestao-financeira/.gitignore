@@ -1,0 +1,79 @@
+# ============================================================
+# JAVA / MAVEN
+# ============================================================
+
+# Pasta de build — gerada pelo Maven, nunca versionar
+target/
+
+# Arquivos de classe compilados
+*.class
+
+# Arquivos JAR/WAR/EAR gerados
+*.jar
+*.war
+*.ear
+*.nar
+
+# Arquivos de log
+*.log
+
+# ============================================================
+# SPRING BOOT
+# ============================================================
+
+# Arquivo de propriedades local (pode conter senhas/tokens)
+application-local.yml
+application-local.properties
+
+# ============================================================
+# IDEs
+# ============================================================
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+/out/
+
+# Eclipse
+.classpath
+.project
+.settings/
+bin/
+
+# VS Code
+.vscode/
+
+# NetBeans
+nbproject/
+nbbuild/
+dist/
+nbdist/
+
+# ============================================================
+# SISTEMA OPERACIONAL
+# ============================================================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ============================================================
+# OUTROS
+# ============================================================
+
+# Variáveis de ambiente locais
+.env
+.env.local
+
+# Arquivos temporários
+*.tmp
+*.temp
