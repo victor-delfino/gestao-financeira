@@ -1,9 +1,0 @@
-C:\Users\Victor Delfino\Documents\gestao\gestao-financeira\src\main\java\com\gestao\financeira\domain\model\TransactionType.java
-C:\Users\Victor Delfino\Documents\gestao\gestao-financeira\src\main\java\com\gestao\financeira\domain\exception\DomainException.java
-C:\Users\Victor Delfino\Documents\gestao\gestao-financeira\src\main\java\com\gestao\financeira\domain\port\in\CalculateBalanceUseCase.java
-C:\Users\Victor Delfino\Documents\gestao\gestao-financeira\src\main\java\com\gestao\financeira\domain\port\out\TransactionRepositoryPort.java
-C:\Users\Victor Delfino\Documents\gestao\gestao-financeira\src\main\java\com\gestao\financeira\application\service\CreateTransactionCommand.java
-C:\Users\Victor Delfino\Documents\gestao\gestao-financeira\src\main\java\com\gestao\financeira\domain\port\in\CreateTransactionUseCase.java
-C:\Users\Victor Delfino\Documents\gestao\gestao-financeira\src\main\java\com\gestao\financeira\domain\model\Transaction.java
-C:\Users\Victor Delfino\Documents\gestao\gestao-financeira\src\main\java\com\gestao\financeira\domain\port\in\ListTransactionsUseCase.java
-C:\Users\Victor Delfino\Documents\gestao\gestao-financeira\src\main\java\com\gestao\financeira\GestaoFinanceiraApplication.java
