@@ -1,30 +1,90 @@
-/* Tailwind v4 — basta este import. Sem tailwind.config.js necessário. */
+/* Tailwind v4 */
 @import "tailwindcss";
 
-/* Estilos base sobrescritos pelo Tailwind */
+/* ── Custom design tokens ───────────────────────────────── */
+@theme {
+  --color-surface: #ffffff;
+  --color-surface-hover: #f9fafb;
+  --color-surface-secondary: #f3f4f6;
+  --color-surface-tertiary: #e5e7eb;
+  --color-border: #e5e7eb;
+  --color-border-subtle: #f3f4f6;
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-tertiary: #9ca3af;
+  --color-accent: #6366f1;
+  --color-accent-hover: #4f46e5;
+  --color-accent-subtle: #eef2ff;
+  --color-income: #10b981;
+  --color-income-bg: #ecfdf5;
+  --color-expense: #ef4444;
+  --color-expense-bg: #fef2f2;
+  --color-danger: #ef4444;
+  --color-danger-bg: #fef2f2;
+}
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  background-color: #f3f4f6;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background-color: var(--color-surface-secondary);
+  color: var(--color-text-primary);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* ── Dark mode override ─────────────────────────────────── */
+.dark {
+  --color-surface: #18181b;
+  --color-surface-hover: #27272a;
+  --color-surface-secondary: #09090b;
+  --color-surface-tertiary: #3f3f46;
+  --color-border: #27272a;
+  --color-border-subtle: #1f1f23;
+  --color-text-primary: #fafafa;
+  --color-text-secondary: #a1a1aa;
+  --color-text-tertiary: #71717a;
+  --color-accent: #818cf8;
+  --color-accent-hover: #6366f1;
+  --color-accent-subtle: #1e1b4b;
+  --color-income: #34d399;
+  --color-income-bg: #064e3b;
+  --color-expense: #f87171;
+  --color-expense-bg: #7f1d1d;
+  --color-danger: #f87171;
+  --color-danger-bg: #450a0a;
+}
+
+/* ── Smooth transitions for theme switch ────────────────── */
+*, *::before, *::after {
+  transition-property: background-color, border-color;
+  transition-duration: 0.15s;
+  transition-timing-function: ease;
+}
+
+/* ── Scrollbar styling ──────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+/* ── Focus ring (accessible) ──────────────────────────── */
+*:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }

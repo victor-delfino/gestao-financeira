@@ -6,18 +6,10 @@ import { TransactionList } from './components/TransactionList';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { useAuth } from './contexts/AuthContext';
+import { useTheme } from './contexts/ThemeContext';
 import transactionService from './services/transactionService';
 import type { CreateTransactionRequest, TransactionResponse } from './types/transaction';
 
-/**
- * Componente raiz da aplicação.
- *
- * RESPONSABILIDADES:
- *   - Gerenciar rotas: login, register, dashboard
- *   - Proteger o dashboard: só acessível quando autenticado
- *   - Buscar e manter o estado global (transactions, balance)
- *   - Coordenar os componentes filhos via props
- */
 function App() {
   return (
     <Routes>
@@ -29,35 +21,24 @@ function App() {
   );
 }
 
-/**
- * Rota protegida: redireciona para login se não estiver autenticado.
- */
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 }
 
-/**
- * Rota pública: redireciona para dashboard se já estiver autenticado.
- */
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
   return isAuthenticated ? <Navigate to="/" replace /> : <>{children}</>;
 }
 
-/**
- * Dashboard principal — exibe saldo, formulário e lista de transações.
- * Só é renderizado quando o usuário está autenticado.
- */
 function Dashboard() {
   const [transactions, setTransactions] = useState<TransactionResponse[]>([]);
   const [balance, setBalance] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const { userName, logout } = useAuth();
+  const { dark, toggle } = useTheme();
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  useEffect(() => { loadData(); }, []);
 
   const loadData = async () => {
     setLoading(true);
@@ -80,32 +61,69 @@ function Dashboard() {
     await loadData();
   };
 
+  // Pega as iniciais do nome para avatar
+  const initials = userName
+    ? userName.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
+    : '?';
+
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header com nome do usuário e botão de logout */}
-      <header className="bg-indigo-700 text-white shadow-md">
-        <div className="max-w-2xl mx-auto px-4 py-5 flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold tracking-tight">💰 Gestão Financeira</h1>
-            <p className="text-indigo-200 text-sm mt-0.5">Controle suas receitas e despesas</p>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-surface-secondary)' }}>
+      {/* ── Header ── */}
+      <header style={{ backgroundColor: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)' }}>
+        <div className="max-w-3xl mx-auto px-5 py-4 flex items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+                 style={{ backgroundColor: 'var(--color-accent-subtle)' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
+            </div>
+            <div>
+              <h1 className="text-base font-bold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>
+                Gestão Financeira
+              </h1>
+              <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>
+                Controle de receitas e despesas
+              </p>
+            </div>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-indigo-200 text-sm">
-              Olá, <strong className="text-white">{userName}</strong>
-            </span>
-            <button
-              onClick={logout}
-              className="bg-indigo-600 hover:bg-indigo-500 text-white text-sm px-4 py-1.5
-                         rounded-lg border border-indigo-500 transition-colors"
-            >
-              Sair
+
+          {/* Actions */}
+          <div className="flex items-center gap-3">
+            {/* Theme toggle */}
+            <button onClick={toggle}
+              className="p-2 rounded-xl transition-all hover:scale-105 active:scale-95 cursor-pointer"
+              style={{ backgroundColor: 'var(--color-surface-secondary)', border: '1px solid var(--color-border)', color: 'var(--color-text-secondary)' }}
+              aria-label="Alternar tema">
+              {dark ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+              )}
             </button>
+
+            {/* User avatar + name */}
+            <div className="flex items-center gap-2.5 pl-3" style={{ borderLeft: '1px solid var(--color-border)' }}>
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                   style={{ backgroundColor: 'var(--color-accent)' }}>
+                {initials}
+              </div>
+              <span className="text-sm font-medium hidden sm:block" style={{ color: 'var(--color-text-primary)' }}>
+                {userName}
+              </span>
+              <button onClick={logout}
+                className="text-xs font-medium px-3 py-1.5 rounded-lg transition-all hover:opacity-80 active:scale-95 cursor-pointer"
+                style={{ color: 'var(--color-text-secondary)', backgroundColor: 'var(--color-surface-secondary)', border: '1px solid var(--color-border)' }}>
+                Sair
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Conteúdo principal */}
-      <main className="max-w-2xl mx-auto px-4 py-8">
+      {/* ── Content ── */}
+      <main className="max-w-3xl mx-auto px-5 py-8 space-y-6">
         <BalanceCard balance={balance} transactions={transactions} />
         <TransactionForm onSubmit={handleCreate} />
         <TransactionList transactions={transactions} loading={loading} />

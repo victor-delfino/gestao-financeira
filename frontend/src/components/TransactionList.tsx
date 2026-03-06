@@ -5,13 +5,6 @@ interface TransactionListProps {
   loading: boolean;
 }
 
-/**
- * Lista de transações financeiras.
- *
- * POR QUE EXISTE: Responsabilidade única de exibir a lista.
- *   Recebe dados prontos via props — não busca nada, não tem lógica de negócio.
- *   É um componente "burro" (presentational): recebe dados e renderiza.
- */
 export function TransactionList({ transactions, loading }: TransactionListProps) {
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
@@ -21,10 +14,12 @@ export function TransactionList({ transactions, loading }: TransactionListProps)
 
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl shadow-md p-6">
-        <div className="animate-pulse space-y-3">
+      <div className="rounded-2xl p-6 shadow-sm"
+           style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+        <div className="space-y-3">
           {[1, 2, 3].map(i => (
-            <div key={i} className="h-16 bg-gray-100 rounded-lg" />
+            <div key={i} className="h-16 rounded-xl animate-pulse"
+                 style={{ backgroundColor: 'var(--color-surface-secondary)' }} />
           ))}
         </div>
       </div>
@@ -33,58 +28,89 @@ export function TransactionList({ transactions, loading }: TransactionListProps)
 
   if (transactions.length === 0) {
     return (
-      <div className="bg-white rounded-2xl shadow-md p-10 text-center text-gray-400">
-        <p className="text-4xl mb-3">💸</p>
-        <p className="font-medium">Nenhuma transação registrada ainda.</p>
-        <p className="text-sm mt-1">Use o formulário acima para adicionar a primeira.</p>
+      <div className="rounded-2xl p-12 text-center shadow-sm"
+           style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+        <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center"
+             style={{ backgroundColor: 'var(--color-surface-secondary)' }}>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-tertiary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+          </svg>
+        </div>
+        <p className="font-semibold text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+          Nenhuma transação ainda
+        </p>
+        <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
+          Clique em "Nova Transação" para começar
+        </p>
       </div>
     );
   }
 
-  // Ordena por data mais recente primeiro
   const sorted = [...transactions].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
   return (
-    <div className="bg-white rounded-2xl shadow-md overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-100">
-        <h2 className="text-lg font-semibold text-gray-800">
+    <div className="rounded-2xl shadow-sm overflow-hidden"
+         style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+
+      {/* Header */}
+      <div className="px-6 py-4 flex items-center justify-between"
+           style={{ borderBottom: '1px solid var(--color-border)' }}>
+        <h2 className="text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>
           Histórico
-          <span className="ml-2 text-sm font-normal text-gray-400">
-            ({transactions.length} transaç{transactions.length === 1 ? 'ão' : 'ões'})
-          </span>
         </h2>
+        <span className="text-xs font-medium px-2.5 py-1 rounded-full"
+              style={{ backgroundColor: 'var(--color-surface-secondary)', color: 'var(--color-text-tertiary)' }}>
+          {transactions.length} transaç{transactions.length === 1 ? 'ão' : 'ões'}
+        </span>
       </div>
 
-      <ul className="divide-y divide-gray-50">
-        {sorted.map(transaction => {
+      {/* List */}
+      <ul>
+        {sorted.map((transaction, index) => {
           const isIncome = transaction.type === 'INCOME';
+          const isLast = index === sorted.length - 1;
 
           return (
-            <li
-              key={transaction.id}
-              className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition-colors"
+            <li key={transaction.id}
+                className="flex items-center justify-between px-6 py-4 transition-colors"
+                style={{
+                  borderBottom: isLast ? 'none' : '1px solid var(--color-border-subtle)',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)')}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
             >
-              {/* Ícone + Informações */}
-              <div className="flex items-center gap-4">
-                {/* Ícone colorido por tipo */}
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg
-                  ${isIncome ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'}`}>
-                  {isIncome ? '↑' : '↓'}
+              {/* Left: icon + info */}
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                     style={{ backgroundColor: isIncome ? 'var(--color-income-bg)' : 'var(--color-expense-bg)' }}>
+                  {isIncome ? (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                         stroke="var(--color-income)">
+                      <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
+                    </svg>
+                  ) : (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                         stroke="var(--color-expense)">
+                      <line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>
+                    </svg>
+                  )}
                 </div>
-
                 <div>
-                  <p className="font-medium text-gray-800">{transaction.description}</p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                    {transaction.description}
+                  </p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-tertiary)' }}>
                     {transaction.category} · {formatDate(transaction.date)}
                   </p>
                 </div>
               </div>
 
-              {/* Valor */}
-              <p className={`font-bold text-base ${isIncome ? 'text-emerald-600' : 'text-red-600'}`}>
-                {isIncome ? '+' : '-'} {formatCurrency(transaction.amount)}
+              {/* Right: amount */}
+              <p className="text-sm font-bold tabular-nums"
+                 style={{ color: isIncome ? 'var(--color-income)' : 'var(--color-expense)' }}>
+                {isIncome ? '+' : '−'} {formatCurrency(transaction.amount)}
               </p>
             </li>
           );
