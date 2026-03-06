@@ -40,3 +40,18 @@ spring:
 # ============================================================
 server:
   port: 8080
+
+# ============================================================
+# JWT — JSON Web Token
+# ============================================================
+# secret: chave Base64 de 256 bits para assinar tokens HMAC-SHA256.
+#   IMPORTANTE: em produção, use variável de ambiente:
+#   JWT_SECRET=${JWT_SECRET} no lugar do valor hardcoded.
+#
+# expiration: tempo de validade do token em milissegundos.
+#   86400000 = 24 horas (24 * 60 * 60 * 1000)
+#   Após esse tempo, o usuário precisa fazer login novamente.
+# ============================================================
+jwt:
+  secret: dGhpc0lzQVN1cGVyU2VjcmV0S2V5Rm9ySnd0VG9rZW5TaWduaW5nMTIzNDU2Nzg5MA==
+  expiration: 86400000

@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -69,10 +70,12 @@ class TransactionServiceTest {
     class Execute {
 
         private CreateTransactionCommand validCommand;
+        private final UUID userId = UUID.randomUUID();
 
         @BeforeEach
         void setUp() {
             validCommand = new CreateTransactionCommand(
+                userId,
                 "Salário",
                 new BigDecimal("5000.00"),
                 TransactionType.INCOME,
@@ -89,7 +92,7 @@ class TransactionServiceTest {
             // específico quando o método `save` for chamado com qualquer Transaction.
             // any(Transaction.class) = "qualquer Transaction, não importa qual"
             Transaction savedTransaction = new Transaction(
-                "Salário", new BigDecimal("5000.00"),
+                userId, "Salário", new BigDecimal("5000.00"),
                 TransactionType.INCOME, "Trabalho", LocalDate.of(2024, 1, 15)
             );
             when(repository.save(any(Transaction.class))).thenReturn(savedTransaction);
@@ -114,6 +117,7 @@ class TransactionServiceTest {
             // Um comando com descrição em branco deve ser rejeitado pelo domínio
             // ANTES de chegar no repositório
             CreateTransactionCommand invalidCommand = new CreateTransactionCommand(
+                userId,
                 "", // descrição vazia — viola invariante de domínio
                 new BigDecimal("100.00"),
                 TransactionType.EXPENSE,
@@ -150,35 +154,37 @@ class TransactionServiceTest {
     @DisplayName("listAll() — listar todas as transações")
     class ListAll {
 
+        private final UUID userId = UUID.randomUUID();
+
         @Test
         @DisplayName("deve retornar lista do repositório")
         void deveRetornarListaDoRepositorio() {
             // ARRANGE — programa o mock para retornar 2 transações
             List<Transaction> mockTransactions = List.of(
-                new Transaction("Salário", new BigDecimal("5000.00"),
+                new Transaction(userId, "Salário", new BigDecimal("5000.00"),
                     TransactionType.INCOME, "Trabalho", LocalDate.now()),
-                new Transaction("Aluguel", new BigDecimal("1500.00"),
+                new Transaction(userId, "Aluguel", new BigDecimal("1500.00"),
                     TransactionType.EXPENSE, "Moradia", LocalDate.now())
             );
-            when(repository.findAll()).thenReturn(mockTransactions);
+            when(repository.findAllByUserId(userId)).thenReturn(mockTransactions);
 
             // ACT
-            List<Transaction> result = service.listAll();
+            List<Transaction> result = service.listAll(userId);
 
             // ASSERT
             assertThat(result).hasSize(2);
             assertThat(result).extracting(Transaction::getDescription)
                 .containsExactly("Salário", "Aluguel");
 
-            verify(repository, times(1)).findAll();
+            verify(repository, times(1)).findAllByUserId(userId);
         }
 
         @Test
         @DisplayName("deve retornar lista vazia quando não há transações")
         void deveRetornarListaVazia() {
-            when(repository.findAll()).thenReturn(List.of());
+            when(repository.findAllByUserId(userId)).thenReturn(List.of());
 
-            List<Transaction> result = service.listAll();
+            List<Transaction> result = service.listAll(userId);
 
             assertThat(result).isEmpty();
         }
@@ -191,19 +197,21 @@ class TransactionServiceTest {
     @DisplayName("calculate() — calcular saldo")
     class Calculate {
 
+        private final UUID userId = UUID.randomUUID();
+
         @Test
         @DisplayName("deve retornar saldo positivo quando receitas > despesas")
         void deveRetornarSaldoPositivo() {
-            when(repository.findAll()).thenReturn(List.of(
-                new Transaction("Salário", new BigDecimal("5000.00"),
+            when(repository.findAllByUserId(userId)).thenReturn(List.of(
+                new Transaction(userId, "Salário", new BigDecimal("5000.00"),
                     TransactionType.INCOME, "Trabalho", LocalDate.now()),
-                new Transaction("Aluguel", new BigDecimal("1500.00"),
+                new Transaction(userId, "Aluguel", new BigDecimal("1500.00"),
                     TransactionType.EXPENSE, "Moradia", LocalDate.now()),
-                new Transaction("Freelance", new BigDecimal("2000.00"),
+                new Transaction(userId, "Freelance", new BigDecimal("2000.00"),
                     TransactionType.INCOME, "Trabalho", LocalDate.now())
             ));
 
-            BigDecimal balance = service.calculate();
+            BigDecimal balance = service.calculate(userId);
 
             // 5000 + 2000 - 1500 = 5500
             assertThat(balance).isEqualByComparingTo("5500.00");
@@ -212,14 +220,14 @@ class TransactionServiceTest {
         @Test
         @DisplayName("deve retornar saldo negativo quando despesas > receitas")
         void deveRetornarSaldoNegativo() {
-            when(repository.findAll()).thenReturn(List.of(
-                new Transaction("Salário", new BigDecimal("1000.00"),
+            when(repository.findAllByUserId(userId)).thenReturn(List.of(
+                new Transaction(userId, "Salário", new BigDecimal("1000.00"),
                     TransactionType.INCOME, "Trabalho", LocalDate.now()),
-                new Transaction("Aluguel", new BigDecimal("1500.00"),
+                new Transaction(userId, "Aluguel", new BigDecimal("1500.00"),
                     TransactionType.EXPENSE, "Moradia", LocalDate.now())
             ));
 
-            BigDecimal balance = service.calculate();
+            BigDecimal balance = service.calculate(userId);
 
             // 1000 - 1500 = -500
             assertThat(balance).isEqualByComparingTo("-500.00");
@@ -228,9 +236,9 @@ class TransactionServiceTest {
         @Test
         @DisplayName("deve retornar zero quando a lista está vazia")
         void deveRetornarZeroParaListaVazia() {
-            when(repository.findAll()).thenReturn(List.of());
+            when(repository.findAllByUserId(userId)).thenReturn(List.of());
 
-            BigDecimal balance = service.calculate();
+            BigDecimal balance = service.calculate(userId);
 
             assertThat(balance).isEqualByComparingTo(BigDecimal.ZERO);
         }
@@ -238,18 +246,18 @@ class TransactionServiceTest {
         @Test
         @DisplayName("deve somar apenas receitas e subtrair apenas despesas")
         void deveSomarReceitasESubtrairDespesas() {
-            when(repository.findAll()).thenReturn(List.of(
-                new Transaction("Renda A", new BigDecimal("3000.00"),
+            when(repository.findAllByUserId(userId)).thenReturn(List.of(
+                new Transaction(userId, "Renda A", new BigDecimal("3000.00"),
                     TransactionType.INCOME, "Cat", LocalDate.now()),
-                new Transaction("Renda B", new BigDecimal("2000.00"),
+                new Transaction(userId, "Renda B", new BigDecimal("2000.00"),
                     TransactionType.INCOME, "Cat", LocalDate.now()),
-                new Transaction("Gasto A", new BigDecimal("500.00"),
+                new Transaction(userId, "Gasto A", new BigDecimal("500.00"),
                     TransactionType.EXPENSE, "Cat", LocalDate.now()),
-                new Transaction("Gasto B", new BigDecimal("700.00"),
+                new Transaction(userId, "Gasto B", new BigDecimal("700.00"),
                     TransactionType.EXPENSE, "Cat", LocalDate.now())
             ));
 
-            BigDecimal balance = service.calculate();
+            BigDecimal balance = service.calculate(userId);
 
             // (3000 + 2000) - (500 + 700) = 3800
             assertThat(balance).isEqualByComparingTo("3800.00");

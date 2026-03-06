@@ -35,6 +35,7 @@ public class TransactionPersistenceMapper {
     public static TransactionJpaEntity toJpaEntity(Transaction transaction) {
         return new TransactionJpaEntity(
                 transaction.getId(),
+                transaction.getUserId(),
                 transaction.getDescription(),
                 transaction.getAmount(),
                 transaction.getType(),
@@ -57,6 +58,7 @@ public class TransactionPersistenceMapper {
     public static Transaction toDomain(TransactionJpaEntity entity) {
         return new Transaction(
                 entity.getId(),
+                entity.getUserId(),
                 entity.getDescription(),
                 entity.getAmount(),
                 entity.getType(),

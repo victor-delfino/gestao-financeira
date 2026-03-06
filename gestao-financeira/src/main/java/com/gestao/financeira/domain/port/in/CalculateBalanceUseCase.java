@@ -1,6 +1,7 @@
 package com.gestao.financeira.domain.port.in;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 /**
  * Port de entrada: Caso de uso "Calcular Saldo".
@@ -19,7 +20,8 @@ public interface CalculateBalanceUseCase {
     /**
      * Calcula o saldo atual = total de receitas - total de despesas.
      *
+     * @param userId identificador do usuário dono das transações
      * @return saldo atual (pode ser negativo)
      */
-    BigDecimal calculate();
+    BigDecimal calculate(UUID userId);
 }

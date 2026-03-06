@@ -3,6 +3,7 @@ package com.gestao.financeira.domain.port.in;
 import com.gestao.financeira.domain.model.Transaction;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Port de entrada: Caso de uso "Listar Transações".
@@ -15,9 +16,10 @@ import java.util.List;
 public interface ListTransactionsUseCase {
 
     /**
-     * Retorna todas as transações registradas no sistema.
+     * Retorna todas as transações do usuário informado.
      *
+     * @param userId identificador do usuário
      * @return lista de transações (pode ser vazia, nunca null)
      */
-    List<Transaction> listAll();
+    List<Transaction> listAll(UUID userId);
 }

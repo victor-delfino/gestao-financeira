@@ -4,12 +4,16 @@ import com.gestao.financeira.adapters.in.web.dto.CreateTransactionRequest;
 import com.gestao.financeira.adapters.in.web.dto.TransactionResponse;
 import com.gestao.financeira.application.service.CreateTransactionCommand;
 import com.gestao.financeira.domain.model.Transaction;
+import com.gestao.financeira.domain.model.User;
 import com.gestao.financeira.domain.port.in.CalculateBalanceUseCase;
 import com.gestao.financeira.domain.port.in.CreateTransactionUseCase;
 import com.gestao.financeira.domain.port.in.ListTransactionsUseCase;
+import com.gestao.financeira.domain.port.out.UserRepositoryPort;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Controller REST para operações de transação financeira.
@@ -54,6 +59,7 @@ public class TransactionController {
     private final CreateTransactionUseCase createTransactionUseCase;
     private final ListTransactionsUseCase listTransactionsUseCase;
     private final CalculateBalanceUseCase calculateBalanceUseCase;
+    private final UserRepositoryPort userRepository;
 
     /**
      * Injeção via construtor — padrão recomendado no Spring moderno.
@@ -61,10 +67,12 @@ public class TransactionController {
      */
     public TransactionController(CreateTransactionUseCase createTransactionUseCase,
                                   ListTransactionsUseCase listTransactionsUseCase,
-                                  CalculateBalanceUseCase calculateBalanceUseCase) {
+                                  CalculateBalanceUseCase calculateBalanceUseCase,
+                                  UserRepositoryPort userRepository) {
         this.createTransactionUseCase = createTransactionUseCase;
         this.listTransactionsUseCase = listTransactionsUseCase;
         this.calculateBalanceUseCase = calculateBalanceUseCase;
+        this.userRepository = userRepository;
     }
 
     // =========================================================
@@ -99,6 +107,7 @@ public class TransactionController {
         // Aqui o Adapter traduz o "idioma HTTP" para o "idioma interno".
         // O Use Case só entende Command, nunca sabe que existiu um DTO.
         CreateTransactionCommand command = new CreateTransactionCommand(
+                getAuthenticatedUserId(),
                 request.getDescription(),
                 request.getAmount(),
                 request.getType(),
@@ -130,7 +139,8 @@ public class TransactionController {
     @GetMapping
     public ResponseEntity<List<TransactionResponse>> listAll() {
 
-        List<TransactionResponse> responses = listTransactionsUseCase.listAll()
+        UUID userId = getAuthenticatedUserId();
+        List<TransactionResponse> responses = listTransactionsUseCase.listAll(userId)
                 .stream()
                 .map(TransactionResponse::from)   // Transaction → DTO para cada item
                 .toList();
@@ -149,7 +159,19 @@ public class TransactionController {
      */
     @GetMapping("/balance")
     public ResponseEntity<BigDecimal> getBalance() {
-        BigDecimal balance = calculateBalanceUseCase.calculate();
+        UUID userId = getAuthenticatedUserId();
+        BigDecimal balance = calculateBalanceUseCase.calculate(userId);
         return ResponseEntity.ok(balance);
+    }
+
+    // =========================================================
+    // Método auxiliar: extrai o userId do usuário autenticado
+    // =========================================================
+    private UUID getAuthenticatedUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário autenticado não encontrado."));
+        return user.getId();
     }
 }

@@ -34,3 +34,8 @@ spring:
   h2:
     console:
       enabled: false           # Não precisamos do console web nos testes
+
+# JWT para testes — chave qualquer, expiração longa
+jwt:
+  secret: dGhpc0lzQVN1cGVyU2VjcmV0S2V5Rm9ySnd0VG9rZW5TaWduaW5nMTIzNDU2Nzg5MA==
+  expiration: 86400000

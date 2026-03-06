@@ -3,6 +3,7 @@ package com.gestao.financeira.domain.port.out;
 import com.gestao.financeira.domain.model.Transaction;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Port de saída: Contrato de persistência de transações.
@@ -42,4 +43,12 @@ public interface TransactionRepositoryPort {
      * @return lista de transações (pode ser vazia, nunca null)
      */
     List<Transaction> findAll();
+
+    /**
+     * Retorna todas as transações de um usuário específico.
+     *
+     * @param userId identificador do usuário
+     * @return lista de transações do usuário (pode ser vazia, nunca null)
+     */
+    List<Transaction> findAllByUserId(UUID userId);
 }

@@ -108,6 +108,46 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- ===== SPRING SECURITY ===== -->
+        <!-- Traz: filtros de segurança, autenticação, autorização -->
+        <!-- O Spring Boot auto-configura segurança básica.        -->
+        <!-- Nós vamos CUSTOMIZAR com JWT (sem sessão/cookies).    -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- ===== JJWT (Java JWT) ===== -->
+        <!-- Biblioteca para criar e validar JSON Web Tokens.      -->
+        <!-- 3 módulos: api (interfaces), impl (lógica), jackson   -->
+        <!-- (serialização). Separados para não acoplar ao Jackson -->
+        <!-- se você não quiser.                                    -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.12.6</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- ===== SPRING SECURITY TEST ===== -->
+        <!-- Utilitários para testar endpoints protegidos          -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <!-- ========================================================= -->

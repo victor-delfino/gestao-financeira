@@ -1,10 +1,11 @@
 package com.gestao.financeira.infrastructure.config;
 
 import com.gestao.financeira.application.service.TransactionService;
-import com.gestao.financeira.domain.port.in.CalculateBalanceUseCase;
-import com.gestao.financeira.domain.port.in.CreateTransactionUseCase;
-import com.gestao.financeira.domain.port.in.ListTransactionsUseCase;
+import com.gestao.financeira.application.service.UserService;
+import com.gestao.financeira.domain.port.out.PasswordEncoderPort;
+import com.gestao.financeira.domain.port.out.TokenPort;
 import com.gestao.financeira.domain.port.out.TransactionRepositoryPort;
+import com.gestao.financeira.domain.port.out.UserRepositoryPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -50,34 +51,37 @@ import org.springframework.context.annotation.Configuration;
 public class BeanConfiguration {
 
     /**
-     * Registra o TransactionService como implementação de CreateTransactionUseCase.
-     * O Controller que precisa de CreateTransactionUseCase recebe este bean.
-     */
-    @Bean
-    public CreateTransactionUseCase createTransactionUseCase(
-            TransactionRepositoryPort repository) {
-        return new TransactionService(repository);
-    }
-
-    /**
-     * Registra o TransactionService como implementação de ListTransactionsUseCase.
+     * Bean ÚNICO do TransactionService — implementa os três ports de entrada:
+     *   CreateTransactionUseCase, ListTransactionsUseCase, CalculateBalanceUseCase.
      *
-     * Note: cria uma nova instância de TransactionService aqui.
-     * Alternativamente, poderíamos extrair a criação para um método auxiliar,
-     * mas para fins didáticos fica explícito — cada Use Case tem seu bean.
+     * Anteriormente criávamos 3 beans separados, mas como TransactionService
+     * implementa os 3 interfaces, Spring encontrava múltiplos candidatos.
+     * Com um bean único, a resolução é direta:
+     *   Controller pede CreateTransactionUseCase → encontra transactionService → OK
      */
     @Bean
-    public ListTransactionsUseCase listTransactionsUseCase(
+    public TransactionService transactionService(
             TransactionRepositoryPort repository) {
         return new TransactionService(repository);
     }
 
+    // ═════════════════════════════════════════════════════════════════
+    //  USER SERVICE — Use Cases de autenticação
+    // ═════════════════════════════════════════════════════════════════
+
     /**
-     * Registra o TransactionService como implementação de CalculateBalanceUseCase.
+     * Bean ÚNICO do UserService — implementa RegisterUserUseCase e AuthenticateUserUseCase.
+     *
+     * Dependências injetadas pelo Spring:
+     *   - UserRepositoryPort ← UserJpaAdapter (@Component)
+     *   - PasswordEncoderPort ← BcryptPasswordEncoderAdapter (@Component)
+     *   - TokenPort ← JwtTokenProvider (@Component)
      */
     @Bean
-    public CalculateBalanceUseCase calculateBalanceUseCase(
-            TransactionRepositoryPort repository) {
-        return new TransactionService(repository);
+    public UserService userService(
+            UserRepositoryPort userRepository,
+            PasswordEncoderPort passwordEncoder,
+            TokenPort tokenPort) {
+        return new UserService(userRepository, passwordEncoder, tokenPort);
     }
 }

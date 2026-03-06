@@ -9,6 +9,7 @@ import com.gestao.financeira.domain.port.out.TransactionRepositoryPort;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Implementação dos casos de uso de transação financeira.
@@ -78,6 +79,7 @@ public class TransactionService
         // Se qualquer valor for inválido (amount <= 0, description em branco, etc.)
         // o construtor de Transaction lança DomainException automaticamente.
         Transaction transaction = new Transaction(
+                command.getUserId(),
                 command.getDescription(),
                 command.getAmount(),
                 command.getType(),
@@ -106,8 +108,8 @@ public class TransactionService
      * filtros, paginação, ordenação — tudo aqui, sem tocar adapters.
      */
     @Override
-    public List<Transaction> listAll() {
-        return repository.findAll();
+    public List<Transaction> listAll(UUID userId) {
+        return repository.findAllByUserId(userId);
     }
 
     // =========================================================
@@ -129,8 +131,8 @@ public class TransactionService
      *   isso é responsabilidade do Use Case, não da entidade.
      */
     @Override
-    public BigDecimal calculate() {
-        List<Transaction> all = repository.findAll();
+    public BigDecimal calculate(UUID userId) {
+        List<Transaction> all = repository.findAllByUserId(userId);
 
         // Soma todas as receitas
         BigDecimal totalIncome = all.stream()

@@ -25,6 +25,52 @@ const api = axios.create({
   },
 });
 
+/**
+ * INTERCEPTOR DE REQUEST — adiciona o token JWT automaticamente.
+ *
+ * POR QUE EXISTE: Todo endpoint protegido exige o header:
+ *   Authorization: Bearer <token>
+ *
+ * Em vez de adicionar o header manualmente em cada chamada,
+ * o interceptor faz isso AUTOMATICAMENTE para TODAS as requisições.
+ *
+ * COMO FUNCIONA:
+ *   1. Antes de cada requisição, o interceptor é chamado
+ *   2. Busca o token no localStorage
+ *   3. Se existir, adiciona ao header Authorization
+ *   4. A requisição segue normalmente
+ */
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+/**
+ * INTERCEPTOR DE RESPONSE — trata erros 401 (não autorizado).
+ *
+ * POR QUE EXISTE: Se o token expirar ou for inválido, o backend
+ *   retorna 401. O interceptor detecta isso e redireciona para o login
+ *   automaticamente, limpando o token inválido.
+ */
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('userEmail');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 const transactionService = {
 
   /**

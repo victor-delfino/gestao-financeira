@@ -41,6 +41,9 @@ public class TransactionJpaEntity {
     private UUID id;
 
     @Column(nullable = false)
+    private UUID userId;
+
+    @Column(nullable = false)
     private String description;
 
     @Column(nullable = false, precision = 19, scale = 2)
@@ -60,12 +63,14 @@ public class TransactionJpaEntity {
     protected TransactionJpaEntity() {}
 
     public TransactionJpaEntity(UUID id,
+                                 UUID userId,
                                  String description,
                                  BigDecimal amount,
                                  TransactionType type,
                                  String category,
                                  LocalDate date) {
         this.id = id;
+        this.userId = userId;
         this.description = description;
         this.amount = amount;
         this.type = type;
@@ -74,6 +79,7 @@ public class TransactionJpaEntity {
     }
 
     public UUID getId()               { return id; }
+    public UUID getUserId()           { return userId; }
     public String getDescription()    { return description; }
     public BigDecimal getAmount()     { return amount; }
     public TransactionType getType()  { return type; }

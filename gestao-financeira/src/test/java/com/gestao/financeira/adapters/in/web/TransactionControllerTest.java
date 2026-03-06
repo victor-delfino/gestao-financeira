@@ -2,7 +2,10 @@ package com.gestao.financeira.adapters.in.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gestao.financeira.adapters.in.web.dto.CreateTransactionRequest;
+import com.gestao.financeira.adapters.out.persistence.entity.UserJpaEntity;
+import com.gestao.financeira.adapters.out.persistence.repository.UserJpaRepository;
 import com.gestao.financeira.domain.model.TransactionType;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -11,11 +14,13 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.UUID;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -29,40 +34,45 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *  Aqui testamos o fluxo completo:
  *  HTTP Request → Controller → Service → Repository → H2 → Response
  *
- *  Diferente do teste unitário, aqui o contexto Spring sobe de verdade.
- *  Isso é mais lento (segundos), mas valida a integração entre camadas.
- *
- *  @SpringBootTest
- *    Sobe o contexto Spring completo. Todos os Beans são criados.
- *
- *  @AutoConfigureMockMvc
- *    Configura o MockMvc automaticamente. MockMvc simula requisições HTTP
- *    sem precisar de um servidor real (mais rápido que TestRestTemplate).
- *
- *  @AutoConfigureTestDatabase(replace = Replace.ANY)
- *    Mais confiável que @ActiveProfiles: substitui qualquer datasource
- *    configurada (PostgreSQL, MySQL, etc.) por H2 em memória sem
- *    depender de arquivo de profile externo. É a abordagem oficial Spring.
- *
- *  @Transactional
- *    Cada teste roda dentro de uma transação que é revertida (rollback)
- *    ao final. Garante isolamento total sem precisar deletar dados ou
- *    usar @DirtiesContext (que recria o contexto inteiro a cada teste).
+ *  @WithMockUser(username = "test@test.com")
+ *    Simula um usuário autenticado no SecurityContext.
+ *    O username é usado como email para resolver o userId.
+ *    Criamos um usuário com esse email no @BeforeEach.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 @Transactional
+@WithMockUser(username = "test@test.com")
 @DisplayName("TransactionController — testes de integração")
 class TransactionControllerTest {
 
-    // MockMvc: simula chamadas HTTP reais para os endpoints
     @Autowired
     private MockMvc mockMvc;
 
-    // ObjectMapper: converte objetos Java em JSON (serialização)
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private UserJpaRepository userJpaRepository;
+
+    /**
+     * Cria o usuário de teste no banco H2 antes de cada teste.
+     * O @WithMockUser define "test@test.com" no SecurityContext,
+     * e o controller resolve esse email para userId via UserRepositoryPort.
+     */
+    @BeforeEach
+    void setUp() {
+        if (!userJpaRepository.existsByEmail("test@test.com")) {
+            UserJpaEntity testUser = new UserJpaEntity(
+                UUID.randomUUID(),
+                "Test User",
+                "test@test.com",
+                "$2a$10$dummyHashForTests000000000000000000000000000000000"
+            );
+            userJpaRepository.save(testUser);
+        }
+    }
 
     // ─── helper para criar request válida ─────────────────────────────
     private CreateTransactionRequest buildValidRequest(String description,
@@ -91,17 +101,6 @@ class TransactionControllerTest {
                 "Salário", 5000.00, TransactionType.INCOME
             );
 
-            /*
-             * mockMvc.perform(...): executa a requisição
-             * post("/api/transactions"): método HTTP POST + endpoint
-             * contentType(JSON): header Content-Type: application/json
-             * content(json): corpo da requisição
-             *
-             * .andExpect(...): matchers que validam a resposta
-             * status().isCreated(): HTTP 201
-             * jsonPath("$.id"): campo "id" no JSON de resposta
-             * jsonPath("$.description", is("Salário")): verifica valor
-             */
             mockMvc.perform(post("/api/transactions")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)))
@@ -138,7 +137,6 @@ class TransactionControllerTest {
         @Test
         @DisplayName("deve retornar 400 quando tipo é nulo")
         void deveRetornar400ParaTipoNulo() throws Exception {
-            // Criamos o request sem tipo (nulo)
             CreateTransactionRequest request = new CreateTransactionRequest(
                 "Teste", BigDecimal.valueOf(100.00), null, "Cat", LocalDate.now()
             );
@@ -177,11 +175,9 @@ class TransactionControllerTest {
         @Test
         @DisplayName("deve retornar as transações criadas")
         void deveRetornarTransacoesCriadas() throws Exception {
-            // Criamos 2 transações via POST
             criarTransacao("Salário", 5000.00, TransactionType.INCOME);
             criarTransacao("Aluguel", 1500.00, TransactionType.EXPENSE);
 
-            // Listamos e verificamos que existem 2
             mockMvc.perform(get("/api/transactions"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -211,7 +207,6 @@ class TransactionControllerTest {
             criarTransacao("Salário", 5000.00, TransactionType.INCOME);
             criarTransacao("Aluguel", 1500.00, TransactionType.EXPENSE);
 
-            // Saldo esperado: 5000 - 1500 = 3500
             mockMvc.perform(get("/api/transactions/balance"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("3500")));
@@ -224,7 +219,6 @@ class TransactionControllerTest {
             criarTransacao("Gasto A", 800.00, TransactionType.EXPENSE);
             criarTransacao("Gasto B", 700.00, TransactionType.EXPENSE);
 
-            // 1000 - 800 - 700 = -500
             mockMvc.perform(get("/api/transactions/balance"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("-500")));

@@ -38,8 +38,7 @@ class TransactionTest {
     // ─── dados de exemplo ─────────────────────────────────────────────
     private static final String DESC      = "Salário";
     private static final BigDecimal VALUE = new BigDecimal("5000.00");
-    private static final LocalDate  DATE  = LocalDate.of(2024, 1, 15);
-
+    private static final LocalDate  DATE  = LocalDate.of(2024, 1, 15);    private static final UUID USER_ID     = UUID.randomUUID();
     // ─────────────────────────────────────────────────────────────────
     //  Grupo 1: criação bem-sucedida
     // ─────────────────────────────────────────────────────────────────
@@ -54,11 +53,12 @@ class TransactionTest {
             // O construtor de Transaction é chamado com dados válidos.
             // Se lançar exceção, o teste falha aqui.
             Transaction transaction = new Transaction(
-                DESC, VALUE, TransactionType.INCOME, "Trabalho", DATE
+                USER_ID, DESC, VALUE, TransactionType.INCOME, "Trabalho", DATE
             );
 
             // ASSERT — verificamos cada atributo individualmente
             assertThat(transaction.getId()).isNotNull();          // UUID gerado automaticamente
+            assertThat(transaction.getUserId()).isEqualTo(USER_ID);
             assertThat(transaction.getDescription()).isEqualTo(DESC);
             assertThat(transaction.getAmount()).isEqualByComparingTo(VALUE);
             assertThat(transaction.getType()).isEqualTo(TransactionType.INCOME);
@@ -70,7 +70,7 @@ class TransactionTest {
         @DisplayName("deve criar uma transação de saída")
         void deveCriarTransacaoDeSaida() {
             Transaction transaction = new Transaction(
-                "Aluguel", new BigDecimal("1500.00"), TransactionType.EXPENSE, "Moradia", DATE
+                USER_ID, "Aluguel", new BigDecimal("1500.00"), TransactionType.EXPENSE, "Moradia", DATE
             );
 
             assertThat(transaction.getType()).isEqualTo(TransactionType.EXPENSE);
@@ -80,7 +80,7 @@ class TransactionTest {
         @DisplayName("deve reconhecer corretamente isIncome()")
         void deveIdentificarEntrada() {
             Transaction income = new Transaction(
-                DESC, VALUE, TransactionType.INCOME, "Trabalho", DATE
+                USER_ID, DESC, VALUE, TransactionType.INCOME, "Trabalho", DATE
             );
 
             // isIncome() e isExpense() são métodos do domínio que encapsulam a lógica
@@ -93,7 +93,7 @@ class TransactionTest {
         @DisplayName("deve reconhecer corretamente isExpense()")
         void deveIdentificarSaida() {
             Transaction expense = new Transaction(
-                "Mercado", new BigDecimal("300.00"), TransactionType.EXPENSE, "Alimentação", DATE
+                USER_ID, "Mercado", new BigDecimal("300.00"), TransactionType.EXPENSE, "Alimentação", DATE
             );
 
             assertThat(expense.isExpense()).isTrue();
@@ -108,7 +108,7 @@ class TransactionTest {
             UUID id = UUID.randomUUID();
 
             Transaction transaction = new Transaction(
-                id, DESC, VALUE, TransactionType.INCOME, "Trabalho", DATE
+                id, USER_ID, DESC, VALUE, TransactionType.INCOME, "Trabalho", DATE
             );
 
             assertThat(transaction.getId()).isEqualTo(id);
@@ -132,7 +132,7 @@ class TransactionTest {
         @DisplayName("deve lançar DomainException quando descrição é nula")
         void deveLancarExcecaoParaDescricaoNula() {
             assertThatThrownBy(() ->
-                new Transaction(null, VALUE, TransactionType.INCOME, "Trabalho", DATE)
+                new Transaction(USER_ID, null, VALUE, TransactionType.INCOME, "Trabalho", DATE)
             )
             .isInstanceOf(DomainException.class)
             .hasMessageContaining("descrição");
@@ -142,7 +142,7 @@ class TransactionTest {
         @DisplayName("deve lançar DomainException quando descrição está vazia")
         void deveLancarExcecaoParaDescricaoVazia() {
             assertThatThrownBy(() ->
-                new Transaction("   ", VALUE, TransactionType.INCOME, "Trabalho", DATE)
+                new Transaction(USER_ID, "   ", VALUE, TransactionType.INCOME, "Trabalho", DATE)
             )
             .isInstanceOf(DomainException.class)
             .hasMessageContaining("descrição");
@@ -152,7 +152,7 @@ class TransactionTest {
         @DisplayName("deve lançar DomainException quando valor é nulo")
         void deveLancarExcecaoParaValorNulo() {
             assertThatThrownBy(() ->
-                new Transaction(DESC, null, TransactionType.INCOME, "Trabalho", DATE)
+                new Transaction(USER_ID, DESC, null, TransactionType.INCOME, "Trabalho", DATE)
             )
             .isInstanceOf(DomainException.class)
             .hasMessageContaining("valor");
@@ -162,7 +162,7 @@ class TransactionTest {
         @DisplayName("deve lançar DomainException quando valor é zero")
         void deveLancarExcecaoParaValorZero() {
             assertThatThrownBy(() ->
-                new Transaction(DESC, BigDecimal.ZERO, TransactionType.INCOME, "Trabalho", DATE)
+                new Transaction(USER_ID, DESC, BigDecimal.ZERO, TransactionType.INCOME, "Trabalho", DATE)
             )
             .isInstanceOf(DomainException.class)
             .hasMessageContaining("valor");
@@ -172,7 +172,7 @@ class TransactionTest {
         @DisplayName("deve lançar DomainException quando valor é negativo")
         void deveLancarExcecaoParaValorNegativo() {
             assertThatThrownBy(() ->
-                new Transaction(DESC, new BigDecimal("-1.00"), TransactionType.INCOME, "Trabalho", DATE)
+                new Transaction(USER_ID, DESC, new BigDecimal("-1.00"), TransactionType.INCOME, "Trabalho", DATE)
             )
             .isInstanceOf(DomainException.class)
             .hasMessageContaining("valor");
@@ -182,7 +182,7 @@ class TransactionTest {
         @DisplayName("deve lançar DomainException quando tipo é nulo")
         void deveLancarExcecaoParaTipoNulo() {
             assertThatThrownBy(() ->
-                new Transaction(DESC, VALUE, null, "Trabalho", DATE)
+                new Transaction(USER_ID, DESC, VALUE, null, "Trabalho", DATE)
             )
             .isInstanceOf(DomainException.class)
             .hasMessageContaining("tipo");
@@ -192,7 +192,7 @@ class TransactionTest {
         @DisplayName("deve lançar DomainException quando data é nula")
         void deveLancarExcecaoParaDataNula() {
             assertThatThrownBy(() ->
-                new Transaction(DESC, VALUE, TransactionType.INCOME, "Trabalho", null)
+                new Transaction(USER_ID, DESC, VALUE, TransactionType.INCOME, "Trabalho", null)
             )
             .isInstanceOf(DomainException.class)
             .hasMessageContaining("data");

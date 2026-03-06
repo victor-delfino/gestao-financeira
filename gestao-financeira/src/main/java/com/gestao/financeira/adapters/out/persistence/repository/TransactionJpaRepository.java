@@ -3,6 +3,7 @@ package com.gestao.financeira.adapters.out.persistence.repository;
 import com.gestao.financeira.adapters.out.persistence.entity.TransactionJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -28,11 +29,9 @@ import java.util.UUID;
 public interface TransactionJpaRepository
         extends JpaRepository<TransactionJpaEntity, UUID> {
 
-    // Métodos herdados do JpaRepository que usaremos:
-    //   save(entity)     → INSERT ou UPDATE
-    //   findAll()        → SELECT * FROM transactions
-    //
-    // No futuro, poderíamos adicionar queries customizadas aqui:
-    //   List<TransactionJpaEntity> findByType(TransactionType type);
-    //   List<TransactionJpaEntity> findByDateBetween(LocalDate start, LocalDate end);
+    /**
+     * Busca todas as transações de um usuário.
+     * Spring Data gera o SQL: SELECT * FROM transactions WHERE user_id = ?
+     */
+    List<TransactionJpaEntity> findAllByUserId(UUID userId);
 }

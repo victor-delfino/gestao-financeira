@@ -8,6 +8,7 @@ import com.gestao.financeira.domain.port.out.TransactionRepositoryPort;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Adapter de saída: implementa a persistência de transações via JPA.
@@ -84,5 +85,13 @@ public class TransactionJpaAdapter implements TransactionRepositoryPort {
                 .stream()
                 .map(TransactionPersistenceMapper::toDomain)  // cada JPA entity → domínio
                 .toList();                                     // List<Transaction>
+    }
+
+    @Override
+    public List<Transaction> findAllByUserId(UUID userId) {
+        return jpaRepository.findAllByUserId(userId)
+                .stream()
+                .map(TransactionPersistenceMapper::toDomain)
+                .toList();
     }
 }

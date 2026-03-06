@@ -43,6 +43,7 @@ public class Transaction {
     // =========================================================
 
     private final UUID id;
+    private final UUID userId;
     private final String description;
     private final BigDecimal amount;
     private final TransactionType type;
@@ -61,12 +62,13 @@ public class Transaction {
      *
      * @throws DomainException se qualquer regra de negócio for violada
      */
-    public Transaction(String description,
+    public Transaction(UUID userId,
+                       String description,
                        BigDecimal amount,
                        TransactionType type,
                        String category,
                        LocalDate date) {
-        this(UUID.randomUUID(), description, amount, type, category, date);
+        this(UUID.randomUUID(), userId, description, amount, type, category, date);
     }
 
     // =========================================================
@@ -83,6 +85,7 @@ public class Transaction {
      * @throws DomainException se qualquer regra de negócio for violada
      */
     public Transaction(UUID id,
+                       UUID userId,
                        String description,
                        BigDecimal amount,
                        TransactionType type,
@@ -117,10 +120,15 @@ public class Transaction {
         if (date == null) {
             throw new DomainException("A data da transação é obrigatória.");
         }
+
+        if (userId == null) {
+            throw new DomainException("O usuário da transação é obrigatório.");
+        }
         // ── FIM DAS VALIDAÇÕES ────────────────────────────────────
 
         // Só chegamos aqui se TUDO for válido.
         this.id = id;
+        this.userId = userId;
         this.description = description;
         this.amount = amount;
         this.type = type;
@@ -135,6 +143,10 @@ public class Transaction {
 
     public UUID getId() {
         return id;
+    }
+
+    public UUID getUserId() {
+        return userId;
     }
 
     public String getDescription() {
@@ -186,6 +198,7 @@ public class Transaction {
     public String toString() {
         return "Transaction{" +
                 "id=" + id +
+                ", userId=" + userId +
                 ", description='" + description + '\'' +
                 ", amount=" + amount +
                 ", type=" + type +

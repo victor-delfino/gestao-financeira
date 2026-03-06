@@ -4,6 +4,7 @@ import com.gestao.financeira.domain.model.TransactionType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.UUID;
 
 /**
  * Comando para criação de uma nova transação.
@@ -19,17 +20,20 @@ import java.time.LocalDate;
  */
 public class CreateTransactionCommand {
 
+    private final UUID userId;
     private final String description;
     private final BigDecimal amount;
     private final TransactionType type;
     private final String category;
     private final LocalDate date;
 
-    public CreateTransactionCommand(String description,
+    public CreateTransactionCommand(UUID userId,
+                                    String description,
                                     BigDecimal amount,
                                     TransactionType type,
                                     String category,
                                     LocalDate date) {
+        this.userId = userId;
         this.description = description;
         this.amount = amount;
         this.type = type;
@@ -37,6 +41,7 @@ public class CreateTransactionCommand {
         this.date = date;
     }
 
+    public UUID getUserId()            { return userId; }
     public String getDescription() { return description; }
     public BigDecimal getAmount()   { return amount; }
     public TransactionType getType() { return type; }
